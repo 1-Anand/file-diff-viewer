@@ -1,47 +1,55 @@
-# File Diff Viewer
+# Text Diff Viewer
 
-This project is a simple web app that lets you compare two plain‑text files directly in the browser. Upload an “original” and a “modified” file, click **Compare**, and the differences will be highlighted in a diff viewer. Added lines appear in green, removed lines in red and unchanged lines in light grey.
+Compare two pieces of text directly in your browser. This small web
+app lets you paste or type an “original” and a “modified” text into
+side‑by‑side textareas, then highlights the differences. It uses
+the [jsdiff](https://cdnjs.cloudflare.com/ajax/libs/jsdiff/8.0.2/diff.min.js) library
+loaded from the cdnjs CDN【30450747406193†L36-L38】 to compute line‑level diffs on the client.
 
-## How It Works
+## Features
 
-- The app uses the open‑source **jsdiff** library to compute line‑based differences between the two files. jsdiff is available as a CDN resource on cdnjs; a minified script can be loaded via `https://cdnjs.cloudflare.com/ajax/libs/jsdiff/8.0.2/diff.min.js`【30450747406193†L36-L38】.
-- When you click **Compare**, JavaScript reads each selected file using the `FileReader` API, then passes their contents to `JsDiff.diffLines()` to compute a diff array.
-- The script iterates over the diff array and wraps added, removed and unchanged sections in `<span>` tags with appropriate CSS classes. These classes define background colours and text colours for visual clarity.
+- ✏️ **Copy & Paste** – Paste or type text directly into the two input
+  areas; no file upload required.
+- 🎨 **Colour‑coded output** – Added lines appear on a green
+  background, removed lines on red, unchanged lines on light grey.
+- 🖥 **Runs in the browser** – All diff processing happens client‑side
+  using jsdiff. No backend or server needed.
 
-## Project Structure
+## How it works
 
-```
-file-diff-viewer/
-├── index.html   # Main page: file inputs, compare button and result container
-├── diff.js      # JavaScript logic: reads files, computes diff and renders HTML
-├── styles.css   # Basic styling for layout and diff highlighting
-└── README.md    # This file
-```
+The app consists of a simple HTML page (`index.html`), a small
+stylesheet (`styles.css`) and a script (`diff.js`). When you click the
+**Compare** button, `diff.js` reads the contents of the two
+textareas, calls `JsDiff.diffLines()` to compute differences and
+renders each fragment inside a `<pre>` element with classes
+`added`, `removed` or `unchanged` so it can be styled via CSS. The
+jsdiff library is pulled from the cdnjs CDN【30450747406193†L36-L38】.
 
-## Running Locally
+## Running locally
 
-1. Copy the contents of the `file-diff-viewer` directory to your computer.
-2. Open `index.html` in a modern web browser (no server needed). Allow access to the jsdiff CDN if prompted.
-3. Choose two `.txt` files using the **Original file** and **Modified file** inputs.
-4. Click **Compare**. The differences will be displayed below, with additions and deletions highlighted.
+To try it on your machine:
 
-## Deploying to GitHub Pages
+1. Clone or download this repository.
+2. Open `index.html` in a modern web browser. No build step is
+   necessary.
+3. Paste or type text into both input boxes and click **Compare** to
+   view the diff.
 
-You can host this diff viewer online using GitHub Pages, similar to your typing practice site:
+## Deploying with GitHub Pages
 
-1. **Create a new repository** on GitHub (e.g., `file-diff-viewer`). You can do this by clicking **New repository** from the GitHub interface【21853405724016†L84-L107】.
-2. Clone the repository to your local machine and copy the files (`index.html`, `diff.js`, `styles.css`, `README.md`) into it.
-3. Commit and push the changes:
+You can host this tool for free using GitHub Pages:
 
-   ```sh
-   git add .
-   git commit -m "Add file diff viewer"
-   git push origin main
-   ```
+1. Create a new repository on GitHub. The [GitHub Pages
+   quickstart guide](https://docs.github.com/en/pages/quickstart) shows
+   how to create a repo and enable Pages【21853405724016†L84-L116】.
+2. Copy the contents of this folder (`index.html`, `styles.css` and
+   `diff.js`) into the new repository and commit/push your changes.
+3. In your repository, go to **Settings → Pages**. Under **Build and
+   deployment**, select **Deploy from a branch**, choose your
+   `main` branch and `/ (root)` folder, then click **Save**
+  【937884954513635†L108-L138】.
+4. After a minute or two, GitHub Pages will publish your site. The
+   URL will look like `https://<username>.github.io/<repository-name>/`.
 
-4. **Enable GitHub Pages** for the repository: In the **Settings** of your repository, navigate to **Pages** under **Code and automation**. Under **Build and deployment → Source**, select **Deploy from a branch**, then choose the `main` branch and the root folder【937884954513635†L108-L138】. Click **Save**.
-5. After a few minutes, your site will be available at `https://<your-username>.github.io/<repository-name>/`. For instance, if your GitHub username is `octocat` and the repo is `file-diff-viewer`, the diff viewer will be hosted at `https://octocat.github.io/file-diff-viewer/`.
-
-Use this project to compare any two text files quickly, either locally or via a simple hosted page.
-
----
+Now anyone can use your copy‑and‑paste diff viewer by visiting that
+link.
