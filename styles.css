@@ -1,4 +1,12 @@
-/* styles.css for File Diff Viewer */
+/* styles.css for Text Diff Viewer
+ *
+ * This stylesheet defines a minimal, clean layout for the
+ * copy‑and‑paste diff viewer. Two textareas sit side by side above
+ * the compare button. The diff result appears below, with added
+ * lines coloured green, removed lines red and unchanged lines
+ * grey. Tailwind or other frameworks are not used here; instead
+ * simple CSS ensures compatibility across browsers.
+ */
 
 body {
   font-family: Arial, sans-serif;
@@ -13,30 +21,62 @@ h1 {
   color: #fff;
   padding: 20px;
   margin: 0;
+  text-align: center;
 }
 
-.file-inputs {
-  padding: 15px;
-  background-color: #fff;
+/* Container for the two text inputs */
+.text-inputs {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
+  gap: 15px;
+  padding: 15px;
+  background-color: #fff;
   border-bottom: 1px solid #ddd;
 }
 
-.file-inputs label {
+/* Individual input wrapper */
+.input-container {
+  flex: 1;
+  min-width: 300px;
   display: flex;
   flex-direction: column;
-  font-size: 14px;
 }
 
+label {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+textarea {
+  width: 100%;
+  height: 200px;
+  resize: vertical;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-family: Consolas, 'Courier New', monospace;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+/* Compare button styling */
 #compareBtn {
-  padding: 8px 16px;
-  font-size: 14px;
+  margin: 15px;
+  padding: 10px 20px;
+  font-size: 16px;
   cursor: pointer;
+  background-color: #007BFF;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  transition: background-color 0.2s;
 }
 
+#compareBtn:hover {
+  background-color: #0056b3;
+}
+
+/* Diff result styling */
 .diff-result {
   padding: 15px;
   white-space: pre-wrap;
@@ -44,11 +84,12 @@ h1 {
 }
 
 .diff-result pre {
-  font-family: Consolas, "Courier New", monospace;
+  font-family: Consolas, 'Courier New', monospace;
   line-height: 1.4;
+  margin: 0;
 }
 
-/* Highlight added, removed and unchanged sections */
+/* Highlight styles for diff parts */
 .added {
   background-color: #d4f7d4;
   color: #094c09;
