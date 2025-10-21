@@ -43,3 +43,5 @@ You can host this diff viewer online using GitHub Pages, similar to your typing 
 5. After a few minutes, your site will be available at `https://<your-username>.github.io/<repository-name>/`. For instance, if your GitHub username is `octocat` and the repo is `file-diff-viewer`, the diff viewer will be hosted at `https://octocat.github.io/file-diff-viewer/`.
 
 Use this project to compare any two text files quickly, either locally or via a simple hosted page.
+
+---
