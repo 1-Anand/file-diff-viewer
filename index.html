@@ -1,27 +1,28 @@
 <!DOCTYPE html>
-<!-- index.html -->
+<!-- index.html for Text Diff Viewer -->
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>File Diff Viewer</title>
+  <title>Text Diff Viewer</title>
   <link rel="stylesheet" href="styles.css">
-  <!-- Include jsdiff library from CDN -->
-  <!-- The jsdiff library is delivered via cdnjs; version 8.0.2 is available at cdnjs【30450747406193†L36-L38】 -->
+  <!-- jsdiff library from cdnjs【30450747406193†L36-L38】 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jsdiff/8.0.2/diff.min.js"></script>
 </head>
 <body>
-  <h1>File Diff Viewer</h1>
+  <h1>Text Diff Viewer</h1>
 
-  <div class="file-inputs">
-    <label>Original file:
-      <input type="file" id="file1" accept=".txt">
-    </label>
-    <label>Modified file:
-      <input type="file" id="file2" accept=".txt">
-    </label>
-    <button id="compareBtn">Compare</button>
+  <div class="text-inputs">
+    <div class="input-container">
+      <label for="text1">Original text:</label>
+      <textarea id="text1" placeholder="Paste the original text here..." rows="10"></textarea>
+    </div>
+    <div class="input-container">
+      <label for="text2">Modified text:</label>
+      <textarea id="text2" placeholder="Paste the modified text here..." rows="10"></textarea>
+    </div>
   </div>
 
+  <button id="compareBtn">Compare</button>
   <div id="result" class="diff-result"></div>
 
   <script src="diff.js"></script>
