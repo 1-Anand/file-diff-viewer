@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Text Diff Viewer</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsdiff/5.1.0/diff.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         /* Custom styles for the application */
@@ -80,7 +79,7 @@
 </head>
 <body class="text-gray-800">
 
-    <div id="app" class="container mx-auto p-4 md:p-8 max-w-7xl">
+    <div id="app" class="p-4 md:p-6 lg:p-8">
         <!-- Header -->
         <header class="text-center mb-8">
             <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Text Difference Viewer</h1>
@@ -139,7 +138,11 @@
                     <div id="removals-count" class="text-red-600 font-semibold"></div>
                     <div id="additions-count" class="text-green-600 font-semibold"></div>
                 </div>
-                <div class="flex items-center gap-2 mt-4 md:mt-0">
+                <div class="flex items-center gap-4 mt-4 md:mt-0">
+                    <div class="flex items-center">
+                        <input id="sync-scroll-toggle" type="checkbox" checked class="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500">
+                        <label for="sync-scroll-toggle" class="ml-2 block text-sm text-gray-900">Sync Scroll</label>
+                    </div>
                     <button id="copy-button" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-md text-sm">Copy</button>
                     <button id="clear-button" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md text-sm">New Diff</button>
                 </div>
@@ -160,6 +163,7 @@
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsdiff/5.1.0/diff.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // DOM Elements
@@ -173,13 +177,16 @@
 
             const inputSection = document.getElementById('input-section');
             const resultSection = document.getElementById('result-section');
-            const leftDiffOutput = document.getElementById('left-diff');
-            const rightDiffOutput = document.getElementById('right-diff');
+            const leftDiffPanel = document.getElementById('left-diff');
+            const rightDiffPanel = document.getElementById('right-diff');
             const removalsCountEl = document.getElementById('removals-count');
             const additionsCountEl = document.getElementById('additions-count');
             const loadingSpinner = document.getElementById('loading-spinner');
             const alertBox = document.getElementById('alert-box');
             const alertMessage = document.getElementById('alert-message');
+            const syncScrollToggle = document.getElementById('sync-scroll-toggle');
+            
+            let isSyncing = false; // Flag to prevent scroll event loops
 
             // --- Event Listeners ---
 
@@ -200,6 +207,25 @@
             
             // Handle "Copy" button click
             copyButton.addEventListener('click', copyDiffToClipboard);
+            
+            // Handle synchronized scrolling
+            leftDiffPanel.addEventListener('scroll', () => {
+                if (syncScrollToggle.checked && !isSyncing) {
+                    isSyncing = true;
+                    rightDiffPanel.scrollTop = leftDiffPanel.scrollTop;
+                    rightDiffPanel.scrollLeft = leftDiffPanel.scrollLeft;
+                    isSyncing = false;
+                }
+            });
+            
+            rightDiffPanel.addEventListener('scroll', () => {
+                if (syncScrollToggle.checked && !isSyncing) {
+                    isSyncing = true;
+                    leftDiffPanel.scrollTop = rightDiffPanel.scrollTop;
+                    leftDiffPanel.scrollLeft = rightDiffPanel.scrollLeft;
+                    isSyncing = false;
+                }
+            });
 
 
             // --- Functions ---
@@ -256,11 +282,10 @@
                 const text1 = text1Input.value;
                 const text2 = text2Input.value;
 
-                // Show loading spinner
                 inputSection.classList.add('hidden');
                 resultSection.classList.remove('hidden');
-                leftDiffOutput.innerHTML = '';
-                rightDiffOutput.innerHTML = '';
+                leftDiffPanel.innerHTML = '';
+                rightDiffPanel.innerHTML = '';
                 loadingSpinner.style.display = 'flex';
 
 
@@ -277,7 +302,6 @@
 
                     diff.forEach(part => {
                         const lines = part.value.split('\n');
-                        // diffLines adds a trailing newline, so the last element is often empty.
                         if (lines[lines.length - 1] === '') {
                             lines.pop();
                         }
@@ -302,14 +326,13 @@
                         }
                     });
 
-                    // Update UI with results
                     loadingSpinner.style.display = 'none';
-                    leftDiffOutput.innerHTML = leftHtml;
-                    rightDiffOutput.innerHTML = rightHtml;
+                    leftDiffPanel.innerHTML = leftHtml;
+                    rightDiffPanel.innerHTML = rightHtml;
                     removalsCountEl.textContent = `${removals} Removals`;
                     additionsCountEl.textContent = `${additions} Additions`;
 
-                }, 50); // Small delay for UI update
+                }, 50); 
             }
 
             /**
@@ -339,10 +362,9 @@
                     });
                 });
 
-                // Using the older execCommand for wider compatibility in iFrames
                 const textArea = document.createElement("textarea");
                 textArea.value = diffText;
-                textArea.style.position = "fixed"; // Avoid scrolling to bottom
+                textArea.style.position = "fixed"; 
                 document.body.appendChild(textArea);
                 textArea.focus();
                 textArea.select();
