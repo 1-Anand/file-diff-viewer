@@ -1,36 +1,356 @@
 <!DOCTYPE html>
-<!-- index.html for Multi-Input Diff Viewer -->
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Multi‑Input Diff Viewer</title>
-  <link rel="stylesheet" href="styles.css">
-  <!-- Load jsdiff from cdnjs【30450747406193†L36-L38】 -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsdiff/8.0.2/diff.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Diff Viewer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsdiff/5.1.0/diff.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles for the application */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+        }
+        .mono-font {
+            font-family: 'Roboto Mono', monospace;
+        }
+        textarea {
+            font-family: 'Roboto Mono', monospace;
+            min-height: 400px;
+        }
+        .diff-container pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-break: break-all;
+            display: inline-block;
+        }
+        .diff-container .line {
+            display: flex;
+            min-height: 24px;
+        }
+        .diff-container .line-num {
+            width: 50px;
+            text-align: right;
+            padding-right: 16px;
+            color: #888;
+            user-select: none;
+            flex-shrink: 0;
+        }
+        .added-line {
+            background-color: #e6ffed;
+        }
+        .added-line .line-num {
+            background-color: #cdffd8;
+        }
+        .removed-line {
+            background-color: #ffeef0;
+        }
+        .removed-line .line-num {
+            background-color: #ffdce0;
+        }
+        /* Custom file input */
+        .custom-file-input input[type="file"] {
+            display: none;
+        }
+        .custom-file-input label {
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
-<body>
-  <h1>Multi‑Input Diff Viewer</h1>
+<body class="text-gray-800">
 
-  <div class="inputs">
-    <!-- Original input section -->
-    <div class="side">
-      <h2>Original</h2>
-      <input type="file" id="file1" accept=".txt,.text">
-      <textarea id="text1" placeholder="Paste or type the original text here..." rows="10"></textarea>
+    <div id="app" class="container mx-auto p-4 md:p-8 max-w-7xl">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Text Difference Viewer</h1>
+            <p class="text-gray-600 mt-2">Compare two text files or snippets to see the changes.</p>
+        </header>
+
+        <!-- Input Section -->
+        <div id="input-section">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Original Text Panel -->
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex justify-between items-center mb-2">
+                        <h2 class="font-semibold text-lg">Original Text</h2>
+                        <div class="custom-file-input">
+                            <label for="file1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up-circle" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-7.5 3.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V11.5z"/>
+                                </svg>
+                                <span>Open file</span>
+                            </label>
+                            <input type="file" id="file1">
+                        </div>
+                    </div>
+                    <textarea id="text1" class="w-full border rounded-md p-2 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Paste original text here or open a file..."></textarea>
+                </div>
+                <!-- Changed Text Panel -->
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex justify-between items-center mb-2">
+                        <h2 class="font-semibold text-lg">Changed Text</h2>
+                         <div class="custom-file-input">
+                            <label for="file2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up-circle" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-7.5 3.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V11.5z"/>
+                                </svg>
+                                <span>Open file</span>
+                            </label>
+                            <input type="file" id="file2">
+                        </div>
+                    </div>
+                    <textarea id="text2" class="w-full border rounded-md p-2 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Paste changed text here or open a file..."></textarea>
+                </div>
+            </div>
+            <!-- Action Button -->
+            <div class="text-center mt-6">
+                <button id="diff-button" class="bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    Find Difference
+                </button>
+            </div>
+        </div>
+
+        <!-- Result Section -->
+        <div id="result-section" class="hidden bg-white p-4 md:p-6 rounded-lg shadow-lg">
+             <!-- Result Header -->
+            <div class="flex flex-col md:flex-row justify-between items-center border-b pb-4 mb-4">
+                <div class="flex items-center gap-6">
+                    <div id="removals-count" class="text-red-600 font-semibold"></div>
+                    <div id="additions-count" class="text-green-600 font-semibold"></div>
+                </div>
+                <div class="flex items-center gap-2 mt-4 md:mt-0">
+                    <button id="copy-button" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-md text-sm">Copy</button>
+                    <button id="clear-button" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md text-sm">New Diff</button>
+                </div>
+            </div>
+             <!-- Diff View -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 mono-font text-sm diff-container">
+                <div id="left-diff" class="border rounded-md overflow-x-auto"></div>
+                <div id="right-diff" class="border rounded-md overflow-x-auto mt-4 md:mt-0"></div>
+            </div>
+            <div id="loading-spinner" class="hidden justify-center items-center py-10">
+                <div class="loader"></div>
+            </div>
+        </div>
+
+        <!-- Alert Message -->
+        <div id="alert-box" class="hidden fixed top-5 right-5 bg-red-500 text-white py-2 px-4 rounded-lg shadow-lg animate-pulse">
+            <span id="alert-message"></span>
+        </div>
     </div>
-    <!-- Modified input section -->
-    <div class="side">
-      <h2>Modified</h2>
-      <input type="file" id="file2" accept=".txt,.text">
-      <textarea id="text2" placeholder="Paste or type the modified text here..." rows="10"></textarea>
-    </div>
-  </div>
 
-  <button id="compareBtn">Compare</button>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // DOM Elements
+            const text1Input = document.getElementById('text1');
+            const text2Input = document.getElementById('text2');
+            const file1Input = document.getElementById('file1');
+            const file2Input = document.getElementById('file2');
+            const diffButton = document.getElementById('diff-button');
+            const clearButton = document.getElementById('clear-button');
+            const copyButton = document.getElementById('copy-button');
 
-  <!-- Diff results will be rendered here -->
-  <div id="result" class="diff-result"></div>
+            const inputSection = document.getElementById('input-section');
+            const resultSection = document.getElementById('result-section');
+            const leftDiffOutput = document.getElementById('left-diff');
+            const rightDiffOutput = document.getElementById('right-diff');
+            const removalsCountEl = document.getElementById('removals-count');
+            const additionsCountEl = document.getElementById('additions-count');
+            const loadingSpinner = document.getElementById('loading-spinner');
+            const alertBox = document.getElementById('alert-box');
+            const alertMessage = document.getElementById('alert-message');
 
-  <script src="diff.js"></script>
+            // --- Event Listeners ---
+
+            // Handle file input changes
+            file1Input.addEventListener('change', (e) => handleFileUpload(e, text1Input));
+            file2Input.addEventListener('change', (e) => handleFileUpload(e, text2Input));
+
+            // Handle "Find Difference" button click
+            diffButton.addEventListener('click', generateDiff);
+
+            // Handle "New Diff" (Clear) button click
+            clearButton.addEventListener('click', () => {
+                resultSection.classList.add('hidden');
+                inputSection.classList.remove('hidden');
+                text1Input.value = '';
+                text2Input.value = '';
+            });
+            
+            // Handle "Copy" button click
+            copyButton.addEventListener('click', copyDiffToClipboard);
+
+
+            // --- Functions ---
+
+            /**
+             * Reads a file and populates a textarea with its content.
+             * @param {Event} event - The file input change event.
+             * @param {HTMLTextAreaElement} textArea - The textarea to populate.
+             */
+            function handleFileUpload(event, textArea) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    textArea.value = e.target.result;
+                };
+                reader.onerror = () => {
+                    showAlert("Error reading file.");
+                };
+                reader.readAsText(file);
+            }
+            
+            /**
+             * Shows a custom alert message.
+             * @param {string} message - The message to display.
+             */
+            function showAlert(message) {
+                alertMessage.textContent = message;
+                alertBox.classList.remove('hidden');
+                setTimeout(() => {
+                    alertBox.classList.add('hidden');
+                }, 3000);
+            }
+
+            /**
+             * Escapes HTML special characters to prevent XSS.
+             * @param {string} str - The string to escape.
+             * @returns {string} The escaped string.
+             */
+            function escapeHtml(str) {
+                return str
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+
+            /**
+             * Generates and displays the text difference.
+             */
+            function generateDiff() {
+                const text1 = text1Input.value;
+                const text2 = text2Input.value;
+
+                // Show loading spinner
+                inputSection.classList.add('hidden');
+                resultSection.classList.remove('hidden');
+                leftDiffOutput.innerHTML = '';
+                rightDiffOutput.innerHTML = '';
+                loadingSpinner.style.display = 'flex';
+
+
+                // Using setTimeout to allow the UI to update and show the spinner
+                setTimeout(() => {
+                    const diff = Diff.diffLines(text1, text2);
+                    
+                    let leftHtml = '';
+                    let rightHtml = '';
+                    let leftLineNum = 1;
+                    let rightLineNum = 1;
+                    let additions = 0;
+                    let removals = 0;
+
+                    diff.forEach(part => {
+                        const lines = part.value.split('\n');
+                        // diffLines adds a trailing newline, so the last element is often empty.
+                        if (lines[lines.length - 1] === '') {
+                            lines.pop();
+                        }
+
+                        if (part.added) {
+                            additions += lines.length;
+                            lines.forEach(line => {
+                                leftHtml += `<div class="line"><span class="line-num"></span></div>`;
+                                rightHtml += `<div class="line added-line"><span class="line-num">${rightLineNum++}</span><pre>+ ${escapeHtml(line)}</pre></div>`;
+                            });
+                        } else if (part.removed) {
+                            removals += lines.length;
+                            lines.forEach(line => {
+                                leftHtml += `<div class="line removed-line"><span class="line-num">${leftLineNum++}</span><pre>- ${escapeHtml(line)}</pre></div>`;
+                                rightHtml += `<div class="line"><span class="line-num"></span></div>`;
+                            });
+                        } else {
+                             lines.forEach(line => {
+                                leftHtml += `<div class="line"><span class="line-num">${leftLineNum++}</span><pre>  ${escapeHtml(line)}</pre></div>`;
+                                rightHtml += `<div class="line"><span class="line-num">${rightLineNum++}</span><pre>  ${escapeHtml(line)}</pre></div>`;
+                            });
+                        }
+                    });
+
+                    // Update UI with results
+                    loadingSpinner.style.display = 'none';
+                    leftDiffOutput.innerHTML = leftHtml;
+                    rightDiffOutput.innerHTML = rightHtml;
+                    removalsCountEl.textContent = `${removals} Removals`;
+                    additionsCountEl.textContent = `${additions} Additions`;
+
+                }, 50); // Small delay for UI update
+            }
+
+            /**
+             * Copies the generated diff to the clipboard in a plain text format.
+             */
+            function copyDiffToClipboard() {
+                const text1 = text1Input.value;
+                const text2 = text2Input.value;
+                
+                const diff = Diff.diffLines(text1, text2);
+                let diffText = '';
+
+                diff.forEach(part => {
+                    const lines = part.value.split('\n');
+                    if (lines[lines.length - 1] === '') {
+                        lines.pop();
+                    }
+                    
+                    lines.forEach(line => {
+                        if (part.added) {
+                            diffText += `+ ${line}\n`;
+                        } else if (part.removed) {
+                            diffText += `- ${line}\n`;
+                        } else {
+                            diffText += `  ${line}\n`;
+                        }
+                    });
+                });
+
+                // Using the older execCommand for wider compatibility in iFrames
+                const textArea = document.createElement("textarea");
+                textArea.value = diffText;
+                textArea.style.position = "fixed"; // Avoid scrolling to bottom
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    showAlert('Diff copied to clipboard!');
+                } catch (err) {
+                    showAlert('Failed to copy diff.');
+                }
+                document.body.removeChild(textArea);
+            }
+        });
+    </script>
 </body>
 </html>
